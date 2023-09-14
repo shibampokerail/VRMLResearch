@@ -1,11 +1,11 @@
 import numpy as np
 import torch
 from torch.autograd import Variable
-from datas import STUDENTS_DURATION, ALL_SUCCESS_DURATION
+from datas import STUDENTS_DURATION, ALL_SUCCESS_DURATION, CONFIDENCE_LEVEL
 import matplotlib.pyplot as plt
 
 # create dummy data for training
-x_values = STUDENTS_DURATION
+x_values = CONFIDENCE_LEVEL
 x_train = np.array(x_values, dtype=np.float32)
 x_train = x_train.reshape(-1, 1)
 
