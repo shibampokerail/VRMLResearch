@@ -1,43 +1,73 @@
+from sklearn.model_selection import KFold, train_test_split
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from datas import *
-import joblib
+import numpy as np
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
 
-# Step 1: Load and prepare your data (if not already done)
-data = pd.DataFrame({'Input_data': STUDENTS_DURATION, 'Engagement': ALL_SUCCESS_DURATION})
+# Your data preparation code here
 
-# Step 2: Split the data into training and testing sets
-X = data[['Input_data']]  # Features (input)
-y = data['Engagement']              # Target variable (output)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+data = pd.read_excel("student_data.xlsx")
 
-# Step 3: Choose a regression model (Linear Regression in this case)
-model = LinearRegression()
+data = data[
+    ["Professors-Duration", "Students-Count", "Students-Duration", "Staff-Count", "Staff-Duration", "Webpage-Count",
+     "Webpage-Duration", "Docs-Count", "Docs-Duration", "Video-Count", "Video-Duration", "Informed-Duration.1",
+     "All-Success-Duration"]]
 
-# Step 4: Train the model
-model.fit(X_train, y_train)
+# Print rows with data not available
+# rows_with_nan = data[data.isnull().any(axis=1)]
+# print("Rows with NaN data:")
+# print(rows_with_nan)
 
-# Step 5: Make predictions on the test data
-y_pred = model.predict(X_test)
+data = data.dropna()
 
-# Step 6: Evaluate the model's performance
-mae = mean_absolute_error(y_test, y_pred)
-mse = mean_squared_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred)
+# print(data)
 
-# print(f"Mean Absolute Error: {mae}")
-# print(f"Mean Squared Error: {mse}")
-# print(f"R-squared: {r2}")
+predict = "All-Success-Duration"
 
-joblib.dump(model, 'engagement_model.pkl')
+X = np.array(data.drop([predict], 1))
+y = np.array(data[predict])
 
-loaded_model = joblib.load('engagement_model.pkl')
+# Initialize 5-fold cross-validation
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
-for i in range(100,300):
-    new_student_Input_data = i
+model = RandomForestClassifier(n_estimators=100, random_state=42)  # Example model, replace with your chosen model
 
-    new_student_engagement = loaded_model.predict([[new_student_Input_data]])
+model.fit(x_train, y_train)
 
-    print(new_student_engagement)
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+cv_scores = []
+
+for train_index, val_index in kf.split(x_train):
+    X_fold_train, X_fold_val = x_train[train_index], x_train[val_index]
+
+    y_fold_train, y_fold_val = y_train[train_index], y_train[val_index]
+
+
+    # Train your machine learning model on X_train and y_train
+
+    model.fit(X_fold_train, y_fold_train)
+
+    y_val_pred = model.predict(X_fold_val)
+
+    fold_accuracy = accuracy_score(y_fold_val, y_val_pred)
+
+    cv_scores.append(fold_accuracy)
+
+
+    # Evaluate the model's performance (e.g., accuracy)
+
+    # Append the score to the scores list
+
+average_cv_accuracy = sum(cv_scores) / len(cv_scores)
+
+# Print the average score to assess model performance
+
+y_test_pred = model.predict(x_test)
+
+test_accuracy = accuracy_score(y_test, y_test_pred)
+
+
+print("Cross-Validation Average Accuracy:", average_cv_accuracy)
+
+print("Holdout Test Set Accuracy:", test_accuracy)
