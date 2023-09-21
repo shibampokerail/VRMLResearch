@@ -4,10 +4,14 @@ import sklearn
 from sklearn import linear_model
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsRegressor
+
+
 
 
 def get_accuracy():
     data = pd.read_excel("student_data.xlsx")
+
 
     data = data[
         ["Professors-Duration", "Students-Count", "Students-Duration", "Staff-Count", "Staff-Duration", "Webpage-Count",
@@ -37,17 +41,25 @@ def get_accuracy():
     accuracy = linear.score(x_test, y_test)
 
     print("accuracy:", accuracy)
+    return accuracy
 
     predictions = linear.predict(x_test)
 
-    for i in range(len(predictions)):
+   ## for i in range(len(predictions)):
         # print("Prediction:",predictions[i], " Input:",x_test[i], " Actual_value:",y_test[i])
-        print("Prediction:", predictions[i], " Actual_value:", y_test[i], " loss:", (predictions[i] - y_test[i]))
-        print("-----------------------")
+        #print("Prediction:", predictions[i], " Actual_value:", y_test[i], " loss:", (predictions[i] - y_test[i]))
+        ##print("-----------------------")
 
-    plt.figure(figsize=(8, 6))
-    plt.scatter(predictions, y_test, alpha=0.5)
-    plt.plot(y_test, y_test, label='Fitted Line', color='red')
-    plt.title(f"Prediction  vs. Actual_value")
-    plt.grid(True)
-    plt.show()
+    # plt.figure(figsize=(8, 6))
+    # plt.scatter(predictions, y_test, alpha=0.5)
+    # plt.plot(y_test, y_test, label='Fitted Line', color='red')
+    # plt.title(f"Prediction  vs. Actual_value")
+    # plt.grid(True)
+    # plt.show()
+sum = 0
+for i in range(20):
+    sum =+ get_accuracy()
+
+
+sum = sum * 100
+print(sum / 20)
